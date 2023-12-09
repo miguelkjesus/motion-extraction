@@ -16,20 +16,16 @@ def main():
         numFrames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
         invertedFrameDelay = int(args.offset * fps)
 
+        if invertedFrameDelay > numFrames:
+            raise ValueError(f"Offset too large. The offset must be less than the duration of the video.")
+
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-        outpath = ""
-        if args.out:
-            if len(args.filepaths) > 1:
-                filename = ntpath.basename(filepath)
-                outpath = ntpath.join(args.out, filename)
-            else:
-                outpath = args.out
-        else:
-            filenameNoExt = ntpath.basename(ntpath.splitext(filepath)[0])
-            filedir = ntpath.dirname(filepath)
-            outpath = ntpath.join(filedir, f"{filenameNoExt}-motion-extraction-offset-{args.offset}.mp4")
+        filenameNoExt = ntpath.basename(ntpath.splitext(filepath)[0])
+        outname = f"{filenameNoExt}-motion-extraction-offset-{args.offset}.mp4"
+        outdir = args.out or ntpath.dirname(filepath)
+        outpath = ntpath.join(outdir, outname)
 
         out = cv2.VideoWriter(
             outpath,
@@ -42,7 +38,6 @@ def main():
         while len(invertedQueue) < invertedFrameDelay:
             _, frame = video.read()
             invertedQueue.append(frame)
-
 
         i = 0
         while True:
@@ -60,7 +55,6 @@ def main():
         video.release()
         out.release()
     
-
 
 if __name__ == "__main__":
     main()
