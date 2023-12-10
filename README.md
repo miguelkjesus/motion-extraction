@@ -4,6 +4,18 @@ Inspried by [this video](https://www.youtube.com/watch?v=NSS6yAMZF78)
 
 **WORKS BEST WITH STILL IMAGES**
 
+## Examples
+
+Intersection Source Video
+
+[![Source Video](https://img.youtube.com/vi/vpFrzhFYbO4/maxresdefault.jpg)](https://youtu.be/vpFrzhFYbO4)
+
+Motion Extracted (frame offset = 1)
+
+[![Motion Extracted](https://img.youtube.com/vi/_lSy4VmjS8A/maxresdefault.jpg)](https://youtu.be/_lSy4VmjS8A)
+
+(Notice how the still cars are invisible until they start moving)
+
 ## Setup
 
 1. Clone this repository.
