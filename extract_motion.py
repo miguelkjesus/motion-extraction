@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os, cv2
 from typing import Any
 from argparse import ArgumentParser
