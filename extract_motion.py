@@ -9,11 +9,10 @@ from tqdm import tqdm
 from termcolor import colored
 
 
-class ExtractMotion:
-    def __init__(self, video_path: str, frame_offset: int, out_path: str, *, grayscale: bool = True, no_console: bool = True, preview_video: bool = False) -> None:
+class MotionExtracter:
+    def __init__(self, video_path: str, frame_offset: int, *, grayscale: bool = True, no_console: bool = True, preview_video: bool = False) -> None:
         self.video_path = video_path
         self.frame_offset = frame_offset
-        self.out_path = out_path
         self.grayscale = grayscale
         self.no_console = no_console
         self.preview_video = preview_video
@@ -21,7 +20,9 @@ class ExtractMotion:
         self.PREVIEW_WINDOW_TITLE = "Press 'Q' to exit the preview" 
 
     
-    def next_frame(self, video: cv2.VideoCapture):
+    def next_frame(self, video: cv2.VideoCapture) -> tuple[bool, Any]:
+        """Gets the next frame from a video"""
+        
         ret, frame = video.read()
         if self.grayscale:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -29,17 +30,22 @@ class ExtractMotion:
 
 
     def debug(self, string: str) -> None:
+        """Print function that prints if no_console is disabled"""
+        
         if not self.no_console:
             print(string)
 
 
     def get_motion_frame(self, frame1: Any, frame2: Any) -> Any:
+        """Gets the motion frame between two frames"""
+
         processed = cv2.bitwise_not(cv2.add(frame1, cv2.bitwise_not(frame2)))
         return processed
 
 
-    def start(self) -> str:
-        """ Processes the video and returns the path  """
+    def save(self, out_path: str) -> None:
+        """Processes the video and saves it into the out_path"""
+
         video = cv2.VideoCapture(self.video_path)
 
         fps = int(video.get(cv2.CAP_PROP_FPS))
@@ -52,7 +58,7 @@ class ExtractMotion:
             raise ValueError(f"Frame offset ({self.frame_offset}) must be < the number of frames in the video ({num_frames})")
 
         out = cv2.VideoWriter(
-            self.out_path,
+            out_path,
             fourcc,
             fps,
             (width, height),
@@ -82,13 +88,15 @@ class ExtractMotion:
                     self.preview_video = False
                     cv2.destroyWindow(self.PREVIEW_WINDOW_TITLE)
 
-        self.debug(f"{colored('Saved in', 'green')} {colored(':', 'grey')} {os.path.abspath(self.out_path)}")
+        self.debug(f"{colored('Saved in', 'green')} {colored(':', 'grey')} {os.path.abspath(out_path)}")
 
         video.release()
         out.release()
 
 
-def main():
+def main() -> None:
+    """Used for the CLI"""
+
     parser = ArgumentParser()
     parser.add_argument(
         'video_path',
@@ -119,14 +127,13 @@ def main():
     path = os.path.splitext(args.video_path)[0]  # remove extension
     out_path = args.out or f"{path}-frame-offset-{args.offset}.mp4"
 
-    ExtractMotion(
+    MotionExtracter(
         args.video_path, 
         args.frame_offset, 
-        out_path, 
         grayscale=not args.color,
         no_console=args.no_console,
         preview_video=args.preview_video
-    ).start()
+    ).save(out_path)
 
 
 if __name__ == "__main__":
