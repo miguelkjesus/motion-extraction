@@ -62,10 +62,10 @@ class MotionExtracter:
             0 if self.grayscale else None)
 
         # Create queue of frames to offset the negative
-        inverted_queue = deque()
-        while len(inverted_queue) < self.frame_offset:
+        delayed_frames = deque()
+        while len(delayed_frames) < self.frame_offset:
             _, frame = self.next_frame(video)
-            inverted_queue.append(frame)
+            delayed_frames.append(frame)
 
         # Process video
         self.debug(f"{colored('Processing', 'light_blue')} {colored(':', 'grey')} {os.path.abspath(self.video_path)}")
@@ -75,8 +75,8 @@ class MotionExtracter:
             ret, frame = self.next_frame(video)
             if not ret: break
             
-            processed = self.get_motion_frame(frame, inverted_queue.popleft())
-            inverted_queue.append(frame)
+            processed = self.get_motion_frame(frame, delayed_frames.popleft())
+            delayed_frames.append(frame)
             out.write(processed)
 
             if self.preview_video:
